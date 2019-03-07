@@ -15,7 +15,7 @@ def distance(pose1, pose2):
 
 def RVO_update(X, V_des, V_current, ws_model):
     """ compute best velocity given the desired velocity, current velocity and workspace model"""
-    ROB_RAD = ws_model['robot_radius']+0.1
+    ROB_RAD = ws_model['robot_radius']
     V_opt = list(V_current)    
     for i in range(len(X)):
         vA = [V_current[i][0], V_current[i][1]]
@@ -31,9 +31,9 @@ def RVO_update(X, V_des, V_current, ws_model):
                 #transl_vB_vA = [pA[0]+vB[0], pA[1]+vB[1]]
                 dist_BA = distance(pA, pB)
                 theta_BA = atan2(pB[1]-pA[1], pB[0]-pA[0])
-                if 2*ROB_RAD > dist_BA:
-                    dist_BA = 2*ROB_RAD
-                theta_BAort = asin(2*ROB_RAD/dist_BA)
+                if ROB_RAD > dist_BA:
+                    dist_BA = ROB_RAD
+                theta_BAort = asin(ROB_RAD/dist_BA)
                 theta_ort_left = theta_BA+theta_BAort
                 bound_left = [cos(theta_ort_left), sin(theta_ort_left)]
                 theta_ort_right = theta_BA-theta_BAort
@@ -41,7 +41,7 @@ def RVO_update(X, V_des, V_current, ws_model):
                 # use HRVO
                 # dist_dif = distance([0.5*(vB[0]-vA[0]),0.5*(vB[1]-vA[1])],[0,0])
                 # transl_vB_vA = [pA[0]+vB[0]+cos(theta_ort_left)*dist_dif, pA[1]+vB[1]+sin(theta_ort_left)*dist_dif]
-                RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, 2*ROB_RAD]
+                RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, ROB_RAD]
                 RVO_BA_all.append(RVO_BA)                
         for hole in ws_model['circular_obstacles']:
             # hole = [x, y, rad]
@@ -52,7 +52,7 @@ def RVO_update(X, V_des, V_current, ws_model):
             theta_BA = atan2(pB[1]-pA[1], pB[0]-pA[0])
             # over-approximation of square to circular
             OVER_APPROX_C2S = 1.5
-            rad = hole[2]*OVER_APPROX_C2S
+            rad = hole[2] #*OVER_APPROX_C2S
             if (rad+ROB_RAD) > dist_BA:
                 dist_BA = rad+ROB_RAD
             theta_BAort = asin((rad+ROB_RAD)/dist_BA)
@@ -184,7 +184,7 @@ def compute_V_des(X, goal, V_max):
         norm = distance(dif_x, [0, 0])
         norm_dif_x = [dif_x[k]*V_max[k]/norm for k in range(2)]
         V_des.append(norm_dif_x[:])
-        if reach(X[i], goal[i], 0.1):
+        if reach(X[i], goal[i], 0.01):
             V_des[i][0] = 0
             V_des[i][1] = 0
     return V_des
