@@ -18,9 +18,9 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
     cmap = get_cmap(len(X))
     # plot obstacles
     for hole in ws_model['circular_obstacles']:
-        srec = matplotlib.patches.Rectangle(
-                (hole[0]-hole[2], hole[1]-hole[2]),
-                2*hole[2], 2*hole[2],
+        srec = matplotlib.patches.Circle(
+                (hole[0], hole[1]),
+                hole[2],
                 facecolor= 'red',
                 fill = True,
                 alpha=1)
@@ -31,7 +31,7 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
         robot = matplotlib.patches.Circle(
             (X[i][0],X[i][1]),
             radius = ws_model['robot_radius'],
-            facecolor=cmap(i),
+            facecolor='blue', #cmap(i),
             edgecolor='black',
             linewidth=1.0,
             ls='solid',
@@ -47,8 +47,8 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
                 fontsize=20, fontweight ='bold')                
     # ---set axes ---
     ax.set_aspect('equal')
-    ax.set_xlim(-1.0, 6.0)
-    ax.set_ylim(-1.0, 6.0)
+    ax.set_xlim(-1.0, 4.0)
+    ax.set_ylim(-1.0, 4.0)
     ax.set_xlabel(r'$x (m)$')
     ax.set_ylabel(r'$y (m)$')
     ax.grid('on')
