@@ -23,9 +23,9 @@ ws_model['boundary'] = []
 # position of [x,y]
 X = [[-0.5+1.0*i, 0.0] for i in range(7)] + [[-0.5+1.0*i, 5.0] for i in range(7)]
 # velocity of [vx,vy]
-V = [[0,0] for i in xrange(len(X))]
+V = [[0,0] for i in range(len(X))]
 # maximal velocity norm
-V_max = [1.0 for i in xrange(len(X))]
+V_max = [1.0 for i in range(len(X))]
 # goal of [x,y]
 goal = [[5.5-1.0*i, 5.0] for i in range(7)] + [[5.5-1.0*i, 0.0] for i in range(7)]
 
@@ -45,7 +45,7 @@ while t*step < total_time:
     # compute the optimal vel to avoid collision
     V = RVO_update(X, V_des, V, ws_model)
     # update position
-    for i in xrange(len(X)):
+    for i in range(len(X)):
         X[i][0] += V[i][0]*step
         X[i][1] += V[i][1]*step
     #----------------------------------------
