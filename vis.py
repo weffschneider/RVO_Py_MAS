@@ -16,15 +16,16 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
     figure = pyplot.figure()
     ax = figure.add_subplot(1,1,1)
     cmap = get_cmap(len(X))
-    # plot obstacles
-    for hole in ws_model['circular_obstacles']:
-        srec = matplotlib.patches.Circle(
-                (hole[0], hole[1]),
-                hole[2],
-                facecolor= 'red',
-                fill = True,
-                alpha=1)
-        ax.add_patch(srec)
+    # ---plot target---
+    target = ws_model['target']
+    srec = matplotlib.patches.Circle(
+        (target[0], target[1]),
+        ws_model['target_radius'],
+        facecolor= 'red',
+        fill = True,
+        alpha=1)
+    ax.add_patch(srec)
+
     # ---plot traj---
     for i in range(0,len(X)):
         #-------plot car
@@ -47,8 +48,8 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
                 fontsize=20, fontweight ='bold')                
     # ---set axes ---
     ax.set_aspect('equal')
-    ax.set_xlim(-1.0, 4.0)
-    ax.set_ylim(-1.0, 4.0)
+    ax.set_xlim(-2.0, 4.0)
+    ax.set_ylim(-2.0, 3.0)
     ax.set_xlabel(r'$x (m)$')
     ax.set_ylabel(r'$y (m)$')
     ax.grid('on')
