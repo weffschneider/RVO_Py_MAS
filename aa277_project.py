@@ -3,6 +3,7 @@ import sys
 
 from RVO import RVO_update, reach, compute_V_des, reach
 from vis import visualize_traj_dynamic
+import imageio
 
 #------------------------------
 #define workspace model
@@ -38,8 +39,13 @@ total_time = 15
 step = 0.01
 
 #------------------------------
+#initialize images to create animation
+images = []
+
+#------------------------------
 #simulation starts
 t = 0
+t_vis = 4 # set the time steps to visualize
 while t*step < total_time:
     # compute desired vel to goal
     V_des = compute_V_des(X, goal, V_max)
@@ -61,10 +67,14 @@ while t*step < total_time:
         ws_model['target'] = X_T
     #----------------------------------------
     # visualization
-    if t%100 == 0:
+    if t%t_vis == 0:
         
         # visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='data/snap%s.pdf'%str(t/10))
-        visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='data/snap%s.png'%str(t/10))
+        visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='data/snap%s.png'%str(t/t_vis))
+        images.append(imageio.imread('data/snap%s.png'%str(t/t_vis)))
+        
     t += 1
+    
+imageio.mimsave('data/anim.gif', images)
 
     
