@@ -193,5 +193,24 @@ def reach(p1, p2, bound=0.5):
         return True
     else:
         return False
+
+def wrapToPi(a):
+    if isinstance(a, list):
+        return [(x + numpy.pi) % (2*numpy.pi) - numpy.pi for x in a]
+    return (a + numpy.pi) % (2*numpy.pi) - numpy.pi
+    
+def att_control(theta, theta_g, om_max=1.0):
+    """ Output angular rate command to reach desired orientation, theta_g """
+    # Set arbitrary gains
+    K=1.0
+
+    delta = wrapToPi((theta_g-theta) )
+
+    om = K*delta
+    
+    # Clip output if commanding over the limit
+    if numpy.abs(om) > om_max:
+        om = numpy.sign(om) * om_max
+    return om
     
     

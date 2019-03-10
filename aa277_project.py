@@ -1,8 +1,9 @@
 import sys
 
 
-from RVO import RVO_update, reach, compute_V_des, reach
+from RVO import RVO_update, reach, compute_V_des, att_control
 from vis import visualize_traj_dynamic
+from math import pi as PI
 import imageio
 
 #------------------------------
@@ -30,6 +31,8 @@ V = [[0,0] for i in range(len(X))]
 V_max = [1.0 for i in range(len(X))]
 # goal of [x,y]
 goal = [[2.0, 2.0], [2.6, 1.4]]
+theta = [0.0, 0.0]
+theta_goal = [-PI/2.0, PI] # TODO: compute this based on target velocity
 
 #------------------------------
 #simulation setup
@@ -45,7 +48,7 @@ images = []
 #------------------------------
 #simulation starts
 t = 0
-t_vis = 4 # set the time steps to visualize
+t_vis = 5 # set the time steps to visualize
 while t*step < total_time:
     # compute desired vel to goal
     V_des = compute_V_des(X, goal, V_max)
@@ -65,16 +68,21 @@ while t*step < total_time:
         X_T[0] += V_T[0]*step
         X_T[1] += V_T[1]*step
         ws_model['target'] = X_T
+    
+    # update attitude
+    # TODO: add in an attiude 
+    for i in range(len(X)):
+        theta[i] += att_control(theta[i], theta_goal[i])*step
     #----------------------------------------
     # visualization
     if t%t_vis == 0:
-        
+        img_name = 'data/snap%s.png'%str(t/t_vis)
         # visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='data/snap%s.pdf'%str(t/10))
-        visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='data/snap%s.png'%str(t/t_vis))
-        images.append(imageio.imread('data/snap%s.png'%str(t/t_vis)))
+        visualize_traj_dynamic(ws_model, X, V, theta, goal, time=t*step, name=img_name)
+        images.append(imageio.imread(img_name))
         
     t += 1
     
-imageio.mimsave('data/anim.gif', images)
+imageio.mimsave('data/anim_attitude.gif', images)
 
     
