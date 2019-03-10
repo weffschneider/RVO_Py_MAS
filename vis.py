@@ -12,7 +12,7 @@ from math import atan2, sin, cos, sqrt
 
 
 
-def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
+def visualize_traj_dynamic(ws_model, X, U, theta, goal, time = None, name=None):
     figure = pyplot.figure()
     ax = figure.add_subplot(1,1,1)
     cmap = get_cmap(len(X))
@@ -38,7 +38,19 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
             ls='solid',
             alpha=1,
             zorder=2)
+        gripper = matplotlib.patches.Rectangle(( X[i][0] + ws_model['robot_radius']*cos(theta[i]+PI/3.5), \
+                                                 X[i][1] + ws_model['robot_radius']*sin(theta[i]+PI/3.5)), # gripper corner location
+                                               ws_model['robot_radius']*1.5, # gripper width
+                                               ws_model['robot_radius']*0.3, # gripper height
+                                               theta[i]*180.0/PI - 90.0, # gripper orientation
+                                               facecolor='green',
+                                               edgecolor='black',
+                                               linewidth=0.2,
+                                               ls='solid',
+                                               alpha=1,
+                                               zorder=3)
         ax.add_patch(robot)
+        ax.add_patch(gripper)
         #----------plot velocity
         ax.arrow(X[i][0], X[i][1], U[i][0], U[i][1], head_width=0.05, head_length=0.1, fc=cmap(i), ec=cmap(i))
         ax.text(X[i][0]-0.1, X[i][1]-0.1, r'$%s$' %i, fontsize=15, fontweight = 'bold',zorder=3)
