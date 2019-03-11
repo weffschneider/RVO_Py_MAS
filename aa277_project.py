@@ -6,6 +6,7 @@ from vis import visualize_traj_dynamic
 from math import pi as PI
 import numpy as np
 import imageio
+import pdb
 
 #------------------------------
 #define workspace model
@@ -38,7 +39,9 @@ V_max = [1.0 for i in range(len(X))]
 # calculate goal formation
 goal = [[2.0, 2.0], [2.6, 1.4]]
 vhat = np.array([ws_model['target_vel']])
+vhat /= np.linalg.norm(vhat)
 rr = (ws_model['robot_radius'] + ws_model['target_radius'])
+rr = 2.0
 xstar_t_r1 = np.dot(rr*rotate2D(beta),vhat.T) # desired vector from target -> left robot
 xstar_r1_t = -xstar_t_r1[:]
 xstar_t_r2 = np.dot(rr*rotate2D(-beta),vhat.T)  # target -> right robot
@@ -84,12 +87,13 @@ while t*step < total_time:
     # update target position
     X_T = ws_model['target']
     V_T = ws_model['target_vel']
-    if X_T[0] >= target_goal[0] and X_T[1] >= target_goal[1]:
-        ws_model['target_vel'] = [0.0,0.0]
-    else:
-        X_T[0] += V_T[0]*step
-        X_T[1] += V_T[1]*step
-        ws_model['target'] = X_T
+    #if X_T[0] >= target_goal[0] and X_T[1] >= target_goal[1]:
+        #ws_model['target_vel'] = [0.0,0.0]
+        
+    #else:
+    X_T[0] += V_T[0]*step
+    X_T[1] += V_T[1]*step
+    ws_model['target'] = X_T
     
     # update attitude
     # TODO: add in an attiude 
@@ -100,7 +104,10 @@ while t*step < total_time:
     if t%t_vis == 0:
         img_name = 'data/snap%s.png'%str(t/t_vis)
         # visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='data/snap%s.pdf'%str(t/10))
-        visualize_traj_dynamic(ws_model, X, V, theta, goal, time=t*step, name=img_name)
+        #visualize_traj_dynamic(ws_model, X, V, theta, goal, time=t*step, name=img_name)
+        moving_goal = [xstar_t_r1.T[0], xstar_t_r2.T[0]]+ws_model['target']
+        #pdb.set_trace()
+        visualize_traj_dynamic(ws_model, X, V, theta, moving_goal.tolist(), time=t*step, name=img_name)
         images.append(imageio.imread(img_name))
         
     t += 1
