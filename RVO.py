@@ -12,6 +12,9 @@ def distance(pose1, pose2):
     """ compute Euclidean distance for 2D """
     return sqrt((pose1[0]-pose2[0])**2+(pose1[1]-pose2[1])**2)+0.001
 
+def rotate2D(theta):
+    """ 2D rotation matrix for counterclockwise theta """
+    return numpy.array([[numpy.cos(theta), -numpy.sin(theta)],[numpy.sin(theta), numpy.cos(theta)]])
 
 def RVO_update(X, V_des, V_current, ws_model):
     """ compute best velocity given the desired velocity, current velocity and workspace model"""
@@ -212,5 +215,3 @@ def att_control(theta, theta_g, om_max=1.0):
     if numpy.abs(om) > om_max:
         om = numpy.sign(om) * om_max
     return om
-    
-    

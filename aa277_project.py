@@ -1,9 +1,10 @@
 import sys
 
 
-from RVO import RVO_update, reach, compute_V_des, att_control
+from RVO import RVO_update, reach, compute_V_des, att_control, rotate2D
 from vis import visualize_traj_dynamic
 from math import pi as PI
+import numpy as np
 import imageio
 
 #------------------------------
@@ -17,22 +18,36 @@ ws_model['boundary'] = []
 
 #------------------------------
 #initialization for target
-ws_model['target'] = [0.4, 0.4]
-ws_model['target_vel'] = [0.2,0.12]
-target_goal = [2.0, 1.4]
+ws_model['target'] = np.array([0.4, 0.4])
+ws_model['target_vel'] = np.array([0.2,0.12])
+target_goal = [2.0, 1.4]*2
 
 #------------------------------
-#initialization for robot 
+# TODO: this should come from limit surface optimization
+beta = 45
+
+#------------------------------
+# initialization for robots
 # position of [x,y]
 X = [[-1.0, -1.0], [0.0, -1.0]]
 # velocity of [vx,vy]
 V = [[0,0] for i in range(len(X))]
 # maximal velocity norm
 V_max = [1.0 for i in range(len(X))]
-# goal of [x,y]
+
+# calculate goal formation
 goal = [[2.0, 2.0], [2.6, 1.4]]
+vhat = np.array([ws_model['target_vel']])
+rr = (ws_model['robot_radius'] + ws_model['target_radius'])
+xstar_t_r1 = np.dot(rr*rotate2D(beta),vhat.T) # desired vector from target -> left robot
+xstar_r1_t = -xstar_t_r1[:]
+xstar_t_r2 = np.dot(rr*rotate2D(-beta),vhat.T)  # target -> right robot
+xstar_r2_t = -xstar_t_r2[:]
+Xstar = [xstar_r1_t, xstar_r2_t]
+
 theta = [0.0, 0.0]
-theta_goal = [-PI/2.0, PI] # TODO: compute this based on target velocity
+theta_goal = [np.arctan2(xstar_r1_t[1], xstar_r1_t[0])[0],
+              np.arctan2(xstar_r2_t[1], xstar_r2_t[0])[0]]
 
 #------------------------------
 #simulation setup
@@ -48,10 +63,17 @@ images = []
 #------------------------------
 #simulation starts
 t = 0
-t_vis = 5 # set the time steps to visualize
+t_vis = 50 # set the time steps to visualize
 while t*step < total_time:
-    # compute desired vel to goal
-    V_des = compute_V_des(X, goal, V_max)
+    
+    # compute desired vel, using linear consensus formation controller
+    V_des = []
+    for i in range(len(X)):
+        # (xj - xi) - xij*
+        V_des.append(ws_model['target'] - X[i] - Xstar[i].T[0])
+        if np.linalg.norm(ws_model['target'] - X[i] - Xstar[i].T[0]) < 0.01:
+            V_des[i] = [0,0]
+    
     # compute the optimal vel to avoid collision
     V = RVO_update(X, V_des, V, ws_model)
     # update position
