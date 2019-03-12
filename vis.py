@@ -18,12 +18,14 @@ def visualize_traj_dynamic(ws_model, X, U, theta, goal, time = None, name=None):
     cmap = get_cmap(len(X))
     # ---plot target---
     target = ws_model['target']
+    target_vel = ws_model['target_vel']
     srec = matplotlib.patches.Circle(
         (target[0], target[1]),
         ws_model['target_radius'],
         facecolor= 'red',
         fill = True,
         alpha=1)
+    ax.arrow(target[0], target[1], target_vel[0], target_vel[1], head_width=0.05, head_length=0.1)
     ax.add_patch(srec)
 
     # ---plot traj---
