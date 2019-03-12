@@ -41,11 +41,10 @@ goal = [[2.0, 2.0], [2.6, 1.4]]
 vhat = np.array([ws_model['target_vel']])
 vhat /= np.linalg.norm(vhat)
 rr = (ws_model['robot_radius'] + ws_model['target_radius'])
-rr = 2.0
 xstar_t_r1 = np.dot(rr*rotate2D(beta),vhat.T) # desired vector from target -> left robot
-xstar_r1_t = -xstar_t_r1[:]
+xstar_r1_t = -xstar_t_r1[:] - ws_model['target_vel']
 xstar_t_r2 = np.dot(rr*rotate2D(-beta),vhat.T)  # target -> right robot
-xstar_r2_t = -xstar_t_r2[:]
+xstar_r2_t = -xstar_t_r2[:] - ws_model['target_vel']
 Xstar = [xstar_r1_t, xstar_r2_t]
 
 theta = [0.0, 0.0]
@@ -55,7 +54,7 @@ theta_goal = [np.arctan2(xstar_r1_t[1], xstar_r1_t[0])[0],
 #------------------------------
 #simulation setup
 # total simulation time (s)
-total_time = 15
+total_time = 20
 # simulation step
 step = 0.01
 
@@ -74,11 +73,10 @@ while t*step < total_time:
     for i in range(len(X)):
         # (xj - xi) - xij*
         V_des.append(ws_model['target'] - X[i] - Xstar[i].T[0])
-        if np.linalg.norm(ws_model['target'] - X[i] - Xstar[i].T[0]) < 0.01:
-            V_des[i] = [0,0]
-    
+
     # compute the optimal vel to avoid collision
     V = RVO_update(X, V_des, V, ws_model)
+    
     # update position
     for i in range(len(X)):
         X[i][0] += V[i][0]*step
@@ -87,10 +85,7 @@ while t*step < total_time:
     # update target position
     X_T = ws_model['target']
     V_T = ws_model['target_vel']
-    #if X_T[0] >= target_goal[0] and X_T[1] >= target_goal[1]:
-        #ws_model['target_vel'] = [0.0,0.0]
-        
-    #else:
+
     X_T[0] += V_T[0]*step
     X_T[1] += V_T[1]*step
     ws_model['target'] = X_T
