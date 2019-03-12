@@ -42,19 +42,19 @@ vhat = np.array([ws_model['target_vel']])
 vhat /= np.linalg.norm(vhat)
 rr = (ws_model['robot_radius'] + ws_model['target_radius'])
 xstar_t_r1 = np.dot(rr*rotate2D(beta),vhat.T) # desired vector from target -> left robot
-xstar_r1_t = -xstar_t_r1[:] - ws_model['target_vel']
+xstar_r1_t = -xstar_t_r1 - np.array([ws_model['target_vel']]).T
 xstar_t_r2 = np.dot(rr*rotate2D(-beta),vhat.T)  # target -> right robot
-xstar_r2_t = -xstar_t_r2[:] - ws_model['target_vel']
+xstar_r2_t = -xstar_t_r2 - np.array([ws_model['target_vel']]).T
 Xstar = [xstar_r1_t, xstar_r2_t]
 
 theta = [0.0, 0.0]
-theta_goal = [np.arctan2(xstar_r1_t[1], xstar_r1_t[0])[0],
-              np.arctan2(xstar_r2_t[1], xstar_r2_t[0])[0]]
+theta_goal = [np.arctan2(-xstar_t_r1[1], -xstar_t_r1[0])[0],
+              np.arctan2(-xstar_t_r2[1], -xstar_t_r2[0])[0]]
 
 #------------------------------
 #simulation setup
 # total simulation time (s)
-total_time = 20
+total_time = 15
 # simulation step
 step = 0.01
 
@@ -65,7 +65,7 @@ images = []
 #------------------------------
 #simulation starts
 t = 0
-t_vis = 50 # set the time steps to visualize
+t_vis = 20 # set the time steps to visualize
 while t*step < total_time:
     
     # compute desired vel, using linear consensus formation controller
